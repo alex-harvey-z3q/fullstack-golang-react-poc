@@ -1,0 +1,4 @@
+type Task { id: ID!, title: String!, done: Boolean! }
+type Query { tasks: [Task!]! }
+type Mutation { addTask(title: String!): Task! }
+schema { query: Query, mutation: Mutation }
