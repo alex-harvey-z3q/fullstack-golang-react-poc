@@ -2,6 +2,8 @@ package tasks
 
 import "time"
 
+// Task is the domain model for a to-do item.
+// This is the shape used throughout your service and exposed via HTTP/GraphQL.
 type Task struct {
 	ID        int32     `json:"id"`
 	Title     string    `json:"title"`
