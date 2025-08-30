@@ -10,7 +10,7 @@ services:
     volumes: ["pgdata:/var/lib/postgresql/data"]
 
   tasks:
-    build: ./services/tasks
+    build: ./services/tasks # Equivalent to `docker build -f services/tasks/Dockerfile ./services/tasks`
     environment:
       PORT: 8081
       DATABASE_URL: postgres://app:app@postgres:5432/tasks?sslmode=disable
