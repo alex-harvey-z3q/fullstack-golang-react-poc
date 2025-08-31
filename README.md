@@ -49,3 +49,12 @@ HTTP Handler
 Client
   - Receives JSON array of tasks
 ```
+
+# Development
+
+To login to the database and test database:
+
+```
+% docker compose exec -it postgres psql -U app -d tasks
+% docker compose exec -it postgres psql -U app -d tasks_test
+```
