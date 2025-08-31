@@ -1,0 +1,26 @@
+# Go build artifacts
+/services/tasks/bin/
+/services/tasks/dist/
+/services/tasks/out/
+/services/tasks/server
+*.test
+*.log
+
+# Go modules
+/services/tasks/vendor/
+
+# Node modules & build
+services/web/react/node_modules/
+services/web/react/dist/
+services/web/react/.vite/
+
+# Env files (never commit secrets!)
+*.env
+*.env.local
+*.env.*.local
+
+# IDE / Editor cruft
+.vscode/
+.idea/
+.DS_Store
+*.swp
