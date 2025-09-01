@@ -1,10 +1,14 @@
 # Fullstack Monorepo
 
-- `services/tasks`: Go + Postgres (REST + GraphQL)
-- `services/users`: Go + Mongo (TODO)
-- `web/react`: React + TypeScript (TODO)
+A learning project demonstrating a fullstack architecture with Go, Postgres, and React.
 
-# Flow
+## Status
+
+- `services/tasks`: Go + Postgres (REST + GraphQL)
+- `web/react`: Frontend (services/web/react): React + TypeScript client that lists tasks.
+- `services/users`: Go + Mongo (TODO)
+
+## Architecture and flow
 
 ```
 Client (browser/curl)
@@ -50,11 +54,74 @@ Client
   - Receives JSON array of tasks
 ```
 
-# Development
+## Prerequisites
 
-To login to the database and test database:
+- Docker & Docker Compose
+- Go 1.23+
+- Node.js 18+ and npm
+
+## Running the stack
+```
+docker compose up --build # Start Postgres + tasks service
+```
+
+Backend runs at http://localhost:8081
+
+Health check: curl http://localhost:8081/healthz
+
+Tasks API: curl http://localhost:8081/api/tasks
+
+## Database
+
+Migrations are stored in services/tasks/internal/db/migrate.
 
 ```
-% docker compose exec -it postgres psql -U app -d tasks
-% docker compose exec -it postgres psql -U app -d tasks_test
+# Apply migrations to dev DB
+make migrate
+
+# Apply migrations to test DB (used automatically in `make test`)
+make migrate-test
+
+# Connect to dev DB
+docker compose exec -it postgres psql -U app -d tasks
+
+# Connect to test DB
+docker compose exec -it postgres psql -U app -d tasks_test
 ```
+
+## Backend development
+
+```
+cd services/tasks
+
+# Run unit tests (uses tasks_test DB)
+make test
+
+# Run server locally (without Docker)
+make dev
+```
+
+## Frontend development
+
+```
+cd services/web/react
+npm install
+npm run dev
+```
+
+- React app runs at http://localhost:5173
+ (Vite default).
+
+- Fetches data from the backend at http://localhost:8081/api/tasks.
+
+## API Documentation
+
+The REST API contract is defined in:
+services/tasks/api/openapi.yaml
+
+This can be used with tools like Swagger UI or Postman to generate clients or validate requests.
+Currently describes `GET /api/tasks`.
+
+## License
+
+MIT.
