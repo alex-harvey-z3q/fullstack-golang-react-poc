@@ -18,7 +18,7 @@ sqlc:
 
 ## Generate GraphQL code (optional if/when you wire gqlgen)
 gqlgen:
-	go run github.com/99designs/gqlgen generate
+	go run github.com/99designs/gqlgen generate --config graph/gqlgen.yml
 
 ## Apply migration to the dev DB (inside container)
 migrate: $(MIG)
