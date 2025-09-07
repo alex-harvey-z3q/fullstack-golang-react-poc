@@ -35,26 +35,32 @@ func main() {
 	// driver for PostgreSQL.
 	//
 	repo, err := tasks.NewRepo(context.Background(), cfg)
+
 	if err != nil {
 		log.Fatalf("repository init: %v", err)
 	}
+
+	// defer repo.Close() is Go’s way of guaranteeing that the database pool is cleaned
+	// up when the program ends, avoiding resource leaks and ensuring graceful shutdowns.
 	defer repo.Close()
 
 	// Builds the domain/business layer. The service coordinates use-cases and calls into
-	// the repo. (Right now it’s thin: it just forwards to the repo.)
+	// the repo. (For this PoC it’s thin: it just forwards to the repo.)
 	svc := tasks.NewService(repo)
 
 	// Creates the HTTP router with default middleware (logger + recovery).
-	// Logger → logs each incoming HTTP request (method, path, status code, latency, etc.).
-	// Recovery → catches any panics inside your handlers, logs the stack trace, and
-	// responds with 500 Internal Server Error instead of crashing the whole process.
+	//
+	// Logger   → logs each incoming HTTP request (method, path, status code, latency, etc.).
+	// Recovery → catches any panics inside the handlers, logs the stack trace, and
+	//   responds with 500 Internal Server Error instead of crashing the whole process.
 	//
 	// A web service 'router' is the component that:
-	// Receives an incoming HTTP request (e.g. GET /api/tasks)
-	// Matches it against a set of rules you’ve defined (like “if it’s a GET and the path
-	// is /api/tasks, call this function”).
-	// Dispatches the request to the correct handler — your Go function that produces the
-	// response.
+	// - Receives an incoming HTTP request (e.g. GET /api/tasks)
+	// - Matches it against a set of defined rules (like “if it’s a GET and the path
+	//   is /api/tasks, call this function”).
+	// - Dispatches the request to the correct handler — i.e. the Go function that produces
+	//   the response.
+	//
 	r := gin.Default()
 
 	// Health check endpoint. Returns {"ok": true} with 200 status.
@@ -64,8 +70,8 @@ func main() {
 	// Group all API endpoints under the /api prefix.
 	api := r.Group("/api")
 
-	// Register your task-related routes (e.g., GET /api/tasks).
-	// Notice we inject `svc` here: this allows tests to inject fakes instead of real DB.
+	// Register the task-related routes (e.g., GET /api/tasks).
+	// We inject `svc` here: this allows tests to inject fakes instead of real DB.
 	tasks.RegisterRoutes(api, svc)
 
 	log.Printf("listening on :%s", cfg.Port)
