@@ -40,7 +40,10 @@ func TestRepo_List(t *testing.T) {
 
 	// Build the repo using your real constructor (same DSN).
 	cfg := config.Config{DatabaseURL: dsn}
-	repo := NewRepo(cfg)
+	repo, err := NewRepo(ctx, cfg)
+	if err != nil {
+		t.Fatalf("new repo: %v", err)
+	}
 	defer repo.Close()
 
 	// Exercise the method under test

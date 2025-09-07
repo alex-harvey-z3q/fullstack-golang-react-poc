@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -21,9 +22,13 @@ func main() {
 	// This reads from services/tasks/internal/tasks/repo.go. It creates a pgxpool to
 	// talk to the Postgres database.
 	//
-	// pgxpool is the connection pool implementation that comes with pgx,
-	// a popular Go driver for PostgreSQL.
-	repo := tasks.NewRepo(cfg)
+	// pgxpool is the connection pool implementation that comes with pgx, a popular Go
+	// driver for PostgreSQL.
+	//
+	repo, err := tasks.NewRepo(context.Background(), cfg)
+	if err != nil {
+		log.Fatalf("repository init: %v", err)
+	}
 	defer repo.Close()
 
 	// Builds the domain/business layer. The service coordinates use-cases and calls into

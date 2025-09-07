@@ -2,7 +2,8 @@ package tasks
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"time"
 
 	"github.com/alex-harvey-z3q/fullstack-golang-react-poc/services/tasks/internal/config"
 	gen "github.com/alex-harvey-z3q/fullstack-golang-react-poc/services/tasks/internal/db/gen"
@@ -19,23 +20,25 @@ type Repo struct {
 	qry *gen.Queries
 }
 
-// Constructor - like __init__ in Python
-//
-// Creates a new pgx pool using cfg.DatabaseURL.
-// If connection fails, logs and exits the process (simple PoC behavior).
-//
-// Binds sqlc’s Queries to the pool and returns a *Repo.
-func NewRepo(cfg config.Config) *Repo {
-	pool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
+// NewRepo creates a pgx pool using a bounded context and verifies connectivity.
+// It returns an error instead of exiting the process.
+func NewRepo(parent context.Context, cfg config.Config) (*Repo, error) {
+	ctx, cancel := context.WithTimeout(parent, 5*time.Second)
+	defer cancel()
+
+	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
 	if err != nil {
-		// For this PoC we crash hard if DB connect fails.
-		// In production we'd return an error instead of fatal logging.
-		log.Fatalf("db connect: %v", err)
+		return nil, fmt.Errorf("db connect: %w", err)
+	}
+	// Ensure we can reach the database now, using the same timeout.
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("db ping: %w", err)
 	}
 	return &Repo{
 		db:  pool,
 		qry: gen.New(pool),
-	}
+	}, nil
 }
 
 // Close releases the connection pool resources.
