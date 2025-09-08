@@ -4,8 +4,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 
+	graphpkg "github.com/alex-harvey-z3q/fullstack-golang-react-poc/services/tasks/graph"
 	"github.com/alex-harvey-z3q/fullstack-golang-react-poc/services/tasks/internal/config"
 	"github.com/alex-harvey-z3q/fullstack-golang-react-poc/services/tasks/internal/tasks"
 )
@@ -73,6 +76,12 @@ func main() {
 	// Register the task-related routes (e.g., GET /api/tasks).
 	// We inject `svc` here: this allows tests to inject fakes instead of real DB.
 	tasks.RegisterRoutes(api, svc)
+
+	srv := handler.NewDefaultServer(
+		graphpkg.NewExecutableSchema(graphpkg.Config{Resolvers: &graphpkg.Resolver{Svc: svc}}),
+	)
+	r.POST("/graphql", gin.WrapH(srv))
+	r.GET("/play", gin.WrapH(playground.Handler("GraphQL", "/graphql")))
 
 	log.Printf("listening on :%s", cfg.Port)
 
