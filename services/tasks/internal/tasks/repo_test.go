@@ -14,8 +14,8 @@ import (
 func TestRepo_List(t *testing.T) {
 	t.Parallel()
 
-	// Use compose Postgres by default; override with TEST_DATABASE_URL if needed.
-	dsn := getenv("TEST_DATABASE_URL", "postgres://app:app@localhost:5432/tasks?sslmode=disable")
+	// Use dedicated test DB by default; override with TEST_DATABASE_URL if needed.
+	dsn := getenv("TEST_DATABASE_URL", "postgres://app:app@localhost:5432/tasks_test?sslmode=disable")
 
 	ctx := context.Background()
 

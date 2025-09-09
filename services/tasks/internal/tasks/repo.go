@@ -1,3 +1,4 @@
+// services/tasks/internal/tasks/repo.go
 package tasks
 
 import (
@@ -69,4 +70,19 @@ func (r *Repo) List(ctx context.Context) ([]Task, error) {
 		})
 	}
 	return out, nil
+}
+
+// Create inserts a new task and returns the created row.
+func (r *Repo) Create(ctx context.Context, title string) (Task, error) {
+	row, err := r.qry.CreateTask(ctx, title)
+	if err != nil {
+		return Task{}, err
+	}
+	return Task{
+		ID:        row.ID,
+		Title:     row.Title,
+		Done:      row.Done,
+		CreatedAt: row.CreatedAt.Time,
+		UpdatedAt: row.UpdatedAt.Time,
+	}, nil
 }

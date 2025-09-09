@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,11 +22,16 @@ type TaskLister interface {
 	List(ctx context.Context) ([]Task, error)
 }
 
+// taskCreator is an optional capability discovered at runtime.
+// If the provided service also implements this, POST /api/tasks will succeed.
+// Otherwise the handler returns 501 Not Implemented.
+type taskCreator interface {
+	Create(ctx context.Context, title string) (Task, error)
+}
+
 // RegisterRoutes wires up HTTP endpoints under a given router group.
-// The svc argument is anything that satisfies TaskLister (usually *Service).
-//
-// The *gin.RouterGroup is a pointer to a gin.RouterGroup as we created
-// in main.go via r.Group.
+// The svc argument only needs to satisfy TaskLister; if it also implements
+// taskCreator, POST /api/tasks will be enabled.
 func RegisterRoutes(r *gin.RouterGroup, svc TaskLister) {
 	// GET /api/tasks
 	r.GET("/tasks", func(c *gin.Context) {
@@ -40,5 +46,36 @@ func RegisterRoutes(r *gin.RouterGroup, svc TaskLister) {
 
 		// On success, return the list of tasks as JSON with HTTP 200.
 		c.JSON(http.StatusOK, items)
+	})
+
+	// POST /api/tasks
+	type createReq struct {
+		Title string `json:"title"`
+	}
+	r.POST("/tasks", func(c *gin.Context) {
+		// Discover create capability at runtime.
+		cr, ok := svc.(taskCreator)
+		if !ok {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "create not supported"})
+			return
+		}
+
+		var req createReq
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON body"})
+			return
+		}
+		title := strings.TrimSpace(req.Title)
+		if title == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "title is required"})
+			return
+		}
+
+		t, err := cr.Create(c.Request.Context(), title)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusCreated, t)
 	})
 }

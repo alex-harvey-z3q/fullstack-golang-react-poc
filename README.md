@@ -120,7 +120,6 @@ The REST API contract is defined in:
 services/tasks/api/openapi.yaml
 
 This can be used with tools like Swagger UI or Postman to generate clients or validate requests.
-Currently describes `GET /api/tasks`.
 
 ## License
 

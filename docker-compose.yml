@@ -7,14 +7,23 @@ services:
       POSTGRES_DB: tasks
     ports: ["5432:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d tasks"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
 
   tasks:
-    build: ./services/tasks # Equivalent to `docker build -f services/tasks/Dockerfile ./services/tasks`
+    build: ./services/tasks
     environment:
       PORT: 8081
       DATABASE_URL: postgres://app:app@postgres:5432/tasks?sslmode=disable
-    depends_on: [postgres]
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports: ["8081:8081"]
+    restart: on-failure
 
 volumes:
   pgdata:

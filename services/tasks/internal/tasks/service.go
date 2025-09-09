@@ -21,6 +21,11 @@ func (s *Service) List(ctx context.Context) ([]Task, error) {
 	return s.repo.List(ctx)
 }
 
+// Create adds a new task with the given title.
+func (s *Service) Create(ctx context.Context, title string) (Task, error) {
+	return s.repo.Create(ctx, title)
+}
+
 // A note about the func (receiver) syntax.
 //
 // This would be the same as the following in Python:

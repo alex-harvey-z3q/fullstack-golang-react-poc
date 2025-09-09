@@ -27,15 +27,6 @@ func (q *Queries) CreateTask(ctx context.Context, title string) (Task, error) {
 	return i, err
 }
 
-const deleteTask = `-- name: DeleteTask :exec
-DELETE FROM tasks WHERE id = $1
-`
-
-func (q *Queries) DeleteTask(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteTask, id)
-	return err
-}
-
 const getTask = `-- name: GetTask :one
 SELECT id, title, done, created_at, updated_at FROM tasks WHERE id = $1
 `
@@ -81,29 +72,4 @@ func (q *Queries) ListTasks(ctx context.Context) ([]Task, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateTask = `-- name: UpdateTask :one
-UPDATE tasks SET title = $2, done = $3, updated_at = now()
-WHERE id = $1
-RETURNING id, title, done, created_at, updated_at
-`
-
-type UpdateTaskParams struct {
-	ID    int32
-	Title string
-	Done  bool
-}
-
-func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {
-	row := q.db.QueryRow(ctx, updateTask, arg.ID, arg.Title, arg.Done)
-	var i Task
-	err := row.Scan(
-		&i.ID,
-		&i.Title,
-		&i.Done,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
 }
