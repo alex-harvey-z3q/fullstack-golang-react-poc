@@ -4,9 +4,15 @@ A learning project demonstrating a fullstack architecture with Go, Postgres, and
 
 ## Status
 
-- `services/tasks`: Go + Postgres (REST + GraphQL)
-- `web/react`: Frontend (services/web/react): React + TypeScript client that lists tasks.
-- `services/users`: Go + Mongo (TODO)
+- **services/tasks** — Go + Postgres
+  - **REST:** Implemented (`/api/tasks` GET + POST), validated against `openapi.yaml`.
+  - **GraphQL:** Schema & gqlgen config scaffolded, **not wired** into the server yet (no `/graphql` route or resolvers).
+
+- **services/web/react** — React + TypeScript client
+  - Lists tasks from the REST API; Vite dev server with `/api` proxy → `:8081`.
+
+- **services/users** — (planned)
+  - Placeholder; not implemented.
 
 ## Architecture and flow
 
@@ -54,65 +60,11 @@ Client
   - Receives JSON array of tasks
 ```
 
-## Prerequisites
+## Quick Start
+See [QUICK_START.md](QUICK_START.md) for step-by-step setup and workflow.
 
-- Docker & Docker Compose
-- Go 1.23+
-- Node.js 18+ and npm
-
-## Running the stack
-```
-docker compose up --build # Start Postgres + tasks service
-```
-
-Backend runs at http://localhost:8081
-
-Health check: curl http://localhost:8081/healthz
-
-Tasks API: curl http://localhost:8081/api/tasks
-
-## Database
-
-Migrations are stored in services/tasks/internal/db/migrate.
-
-```
-# Apply migrations to dev DB
-make migrate
-
-# Apply migrations to test DB (used automatically in `make test`)
-make migrate-test
-
-# Connect to dev DB
-docker compose exec -it postgres psql -U app -d tasks
-
-# Connect to test DB
-docker compose exec -it postgres psql -U app -d tasks_test
-```
-
-## Backend development
-
-```
-cd services/tasks
-
-# Run unit tests (uses tasks_test DB)
-make test
-
-# Run server locally (without Docker)
-make dev
-```
-
-## Frontend development
-
-```
-cd services/web/react
-npm install
-npm run dev
-```
-
-- React app runs at http://localhost:5173
- (Vite default).
-
-- Fetches data from the backend at http://localhost:8081/api/tasks.
+## Maintainers
+See [MAINTAINER_GUIDE.md](MAINTAINER_GUIDE.md) for details on extending the API, running migrations, and contributing changes.
 
 ## API Documentation
 
