@@ -1,4 +1,13 @@
-.PHONY: test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc
+.PHONY: lint lint-fix fmt test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc
+
+lint:
+	cd services/tasks && golangci-lint run ./...
+
+lint-fix:
+	cd services/tasks && golangci-lint run --fix ./...
+
+fmt:
+	cd services/tasks && golangci-lint fmt --fix ./...
 
 test:
 	cd services/tasks && go test ./... -v

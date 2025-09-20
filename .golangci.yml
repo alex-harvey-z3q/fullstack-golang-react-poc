@@ -1,0 +1,26 @@
+version: "2"
+
+# Keep it simple: start with the standard preset.
+linters:
+  default: standard
+  # Do NOT list "typecheck" here — it's not a linter.
+
+# Configure code formatters here (NOT under linters).
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
+      # Optional but nice for multi-module repos:
+      module-path: github.com/alex-harvey-z3q/fullstack-golang-react-poc
+    goimports:
+      # Group your local imports after 3rd-party ones.
+      local-prefixes:
+        - github.com/alex-harvey-z3q/fullstack-golang-react-poc
+
+# Reasonable defaults; tweak later if you want stricter gating.
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
