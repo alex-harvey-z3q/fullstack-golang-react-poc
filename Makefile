@@ -49,7 +49,7 @@ paste:
 	find * -type d -name node_modules -prune -o -type f \
 		-not -path "services/web/react/package-lock.json" \
 		-not -path "services/tasks/graph/generated.go" \
-		-not -path "scripts/interview.go " \
+		-not -path "scripts/interview.go" \
 		-exec echo "===" \; \
 		-exec echo {} \; \
 		-exec echo "===" \; \
