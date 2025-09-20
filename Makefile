@@ -7,7 +7,7 @@ lint-fix:
 	cd services/tasks && golangci-lint run --fix ./...
 
 fmt:
-	cd services/tasks && golangci-lint fmt --fix ./...
+	gofmt -s -w services/tasks
 
 test:
 	cd services/tasks && go test ./... -v
