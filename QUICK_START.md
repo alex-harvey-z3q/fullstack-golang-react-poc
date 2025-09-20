@@ -6,6 +6,7 @@ This guide is for developers who want to clone the repo and get the stack runnin
 
 - **Docker & Docker Compose**
 - **Go 1.23+**
+- **golangci-lint v2**
 - **Node.js 18+** with npm
 
 ## Clone the repository

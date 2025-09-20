@@ -209,5 +209,6 @@ make createdb-test   # create test DB once
 cd services/tasks && make sqlc
 
 # Tests
-cd services/tasks && make test
+make lint
+make test
 ```
