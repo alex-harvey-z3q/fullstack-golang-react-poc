@@ -10,11 +10,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	legacyrouter "github.com/getkin/kin-openapi/routers/legacy"
+	"github.com/gin-gonic/gin"
 )
+
+// closeNoErr is a tiny helper to silence errcheck on defer Close
+func closeNoErr(t *testing.T, c io.Closer) {
+	t.Helper()
+	if err := c.Close(); err != nil {
+		t.Logf("close: %v", err)
+	}
+}
 
 // distinct name to avoid clashing with fakeSvc in http_test.go
 type oasFakeSvc struct{}
@@ -69,7 +77,7 @@ func Test_Server_GetTasks_MatchesOpenAPI(t *testing.T) {
 
 	// Validate the real HTTP response against the OpenAPI document.
 	body := io.NopCloser(bytes.NewReader(rec.Body.Bytes()))
-	defer body.Close()
+	defer closeNoErr(t, body)
 
 	in := &openapi3filter.ResponseValidationInput{
 		RequestValidationInput: &openapi3filter.RequestValidationInput{
@@ -125,7 +133,7 @@ func Test_Server_PostTasks_MatchesOpenAPI(t *testing.T) {
 
 	// Validate the real HTTP response against the OpenAPI document.
 	body := io.NopCloser(bytes.NewReader(rec.Body.Bytes()))
-	defer body.Close()
+	defer closeNoErr(t, body)
 
 	in := &openapi3filter.ResponseValidationInput{
 		RequestValidationInput: &openapi3filter.RequestValidationInput{

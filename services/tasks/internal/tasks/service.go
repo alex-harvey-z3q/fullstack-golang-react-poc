@@ -5,7 +5,7 @@ import "context"
 // Service is the domain layer for "tasks" use-cases.
 // It depends on a Repo to persist/fetch data, but exposes
 // business-oriented methods to the HTTP/GraphQL layers.
-type Service struct{
+type Service struct {
 	repo *Repo
 }
 

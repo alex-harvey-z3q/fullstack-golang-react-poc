@@ -35,7 +35,6 @@ func main() {
 	// driver for PostgreSQL.
 	//
 	repo, err := tasks.NewRepo(context.Background(), cfg)
-
 	if err != nil {
 		log.Fatalf("repository init: %v", err)
 	}
