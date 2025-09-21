@@ -1,4 +1,4 @@
-.PHONY: lint lint-fix fmt test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc web-ng-dev web-ng-build
+.PHONY: lint lint-fix fmt test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc web-ng-dev web-ng-build paste paste-backend paste-react paste-angular
 
 lint:
 	cd services/tasks && golangci-lint run ./...
@@ -61,15 +61,30 @@ web-ng-dev:
 
 web-ng-build:
 
-paste:
-	find * \
-		-type d \( -name node_modules -o -name .angular \) -prune -o \
-		-type f \
-		-not -path "services/web/react/package-lock.json" \
-		-not -path "services/web/angular/package-lock.json" \
-		-not -path "services/tasks/graph/generated.go" \
-		-not -path "scripts/interview.go" \
-		-exec echo "===" \; \
-		-exec echo {} \; \
-		-exec echo "===" \; \
-		-exec cat {} \;
+# Reusable macro:
+# $(call PASTE,<DIR>)
+define PASTE
+	@find $(1) \
+	  -type d \( -name node_modules -o -name .angular \) -prune -o \
+	  -type f \
+	  -not -path "services/web/react/package-lock.json" \
+	  -not -path "services/web/angular/package-lock.json" \
+	  -not -path "services/tasks/graph/generated.go" \
+	  -not -path "scripts/interview.go" \
+	  -exec echo "===" \; \
+	  -exec echo  {}   \; \
+	  -exec echo "===" \; \
+	  -exec cat   {} \;
+endef
+
+paste-backend:
+	$(call PASTE,services/tasks)
+
+paste-react:
+	$(call PASTE,services/web/react)
+
+paste-angular:
+	$(call PASTE,services/web/angular)
+
+# Run all three in order
+paste: paste-backend paste-react paste-angular
