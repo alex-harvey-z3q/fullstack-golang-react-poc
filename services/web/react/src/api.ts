@@ -2,9 +2,16 @@ import type { Task } from './types'
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
 
-export async function fetchTasks(signal?: AbortSignal): Promise<Task[]> {
+export async function fetchTasks(signal?: AbortSignal) {
   const res = await fetch('/api/tasks', { signal })
-  if (!res.ok) throw new Error(`GET /api/tasks failed: ${res.status}`)
+  if (!res.ok) {
+    let msg = `GET /api/tasks failed: ${res.status}`
+    try {
+      const body = await res.json()
+      if (body?.error) msg += ` ${body.error}`
+    } catch {}
+    throw new Error(msg)
+  }
   return res.json()
 }
 

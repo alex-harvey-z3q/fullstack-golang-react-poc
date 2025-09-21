@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TaskService } from './task.service';
 import { Task } from './types';
 
@@ -8,26 +9,32 @@ import { Task } from './types';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  // TEMP: inline template to rule-out templateUrl path issues
   template: `
-    <div style="padding:16px; border: 2px dashed #f36; margin:16px;">
-      <h1>Angular is mounted ✅</h1>
-      <p>Below is the live Tasks UI.</p>
+    <div class="page">
+      <h1>Tasks (Angular)</h1>
 
-      <form (submit)="addTask(); $event.preventDefault()" style="display:flex; gap:8px; margin:12px 0;">
-        <input [(ngModel)]="title" name="title" placeholder="Add a new task…" />
-        <button [disabled]="!canSubmit">{{ submitting ? 'Adding…' : 'Add' }}</button>
+      <form (submit)="addTask(); $event.preventDefault()" class="form-row">
+        <input
+          class="input"
+          type="text"
+          placeholder="Add a new task…"
+          [(ngModel)]="title"
+          name="title"
+          aria-label="Task title" />
+        <button class="btn" [disabled]="!canSubmit">{{ submitting ? 'Adding…' : 'Add' }}</button>
       </form>
 
-      <div *ngIf="error" style="color:#b00020;">⚠️ {{ error }}</div>
-      <div *ngIf="pending" style="opacity:0.7;">Loading…</div>
+      <div *ngIf="error" class="error">⚠️ {{ error }}</div>
+      <div *ngIf="pending" class="muted">Loading…</div>
 
-      <ul *ngIf="!pending && !error">
-        <li *ngFor="let t of tasks">
+      <ul *ngIf="!pending && !error" class="list">
+        <li *ngFor="let t of tasks" class="list-item">
           <input type="checkbox" [checked]="t.done" disabled />
-          <span [style.textDecoration]="t.done ? 'line-through' : 'none'">{{ t.title }}</span>
+          <span [class.done]="t.done">{{ t.title }}</span>
         </li>
-        <li *ngIf="(tasks ?? []).length === 0" style="opacity:.7;">No tasks yet. Add your first one above.</li>
+        <li *ngIf="(tasks ?? []).length === 0" class="muted">
+          No tasks yet. Add your first one above.
+        </li>
       </ul>
     </div>
   `
@@ -41,7 +48,6 @@ export class AppComponent {
   submitting = false;
 
   constructor() {
-    console.log('[AppComponent] constructor');
     this.load();
   }
 
@@ -53,16 +59,31 @@ export class AppComponent {
     return this.title.trim().length > 0 && !this.submitting;
   }
 
+  /** Extract `{ "error": "..." }` from backend responses when available. */
+  private extractServerError(e: unknown): string | null {
+    const err = e as HttpErrorResponse | undefined;
+    if (!err) return null;
+
+    const payload = err.error;
+    if (payload && typeof payload === 'object' && 'error' in payload) {
+      const msg = (payload as any).error;
+      if (typeof msg === 'string' && msg.trim().length > 0) return msg;
+    }
+    if (typeof payload === 'string' && payload.trim().length > 0) {
+      return payload;
+    }
+    return null;
+  }
+
   load() {
     this.error = null;
     this.api.fetchTasks().subscribe({
       next: (items) => {
-        console.log('[AppComponent] fetched tasks', items);
         this.tasks = items;
       },
       error: (e) => {
-        console.error('[AppComponent] fetch error', e);
-        this.error = e?.message ?? 'Failed to load tasks';
+        const serverError = this.extractServerError(e);
+        this.error = serverError || (e as any)?.message || 'Failed to load tasks';
       }
     });
   }
@@ -73,13 +94,12 @@ export class AppComponent {
     const title = this.title.trim();
     this.api.createTask(title).subscribe({
       next: (t) => {
-        console.log('[AppComponent] created task', t);
         this.tasks = [...(this.tasks ?? []), t];
         this.title = '';
       },
       error: (e) => {
-        console.error('[AppComponent] create error', e);
-        this.error = e?.message ?? 'Failed to add task';
+        const serverError = this.extractServerError(e);
+        this.error = serverError || (e as any)?.message || 'Failed to add task';
       },
       complete: () => (this.submitting = false)
     });
