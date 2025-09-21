@@ -62,8 +62,11 @@ web-ng-dev:
 web-ng-build:
 
 paste:
-	find * -type d -name node_modules -prune -o -type f \
+	find * \
+		-type d \( -name node_modules -o -name .angular \) -prune -o \
+		-type f \
 		-not -path "services/web/react/package-lock.json" \
+		-not -path "services/web/angular/package-lock.json" \
 		-not -path "services/tasks/graph/generated.go" \
 		-not -path "scripts/interview.go" \
 		-exec echo "===" \; \
