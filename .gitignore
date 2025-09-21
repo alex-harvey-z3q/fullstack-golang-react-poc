@@ -13,6 +13,8 @@
 services/web/react/node_modules/
 services/web/react/dist/
 services/web/react/.vite/
+services/web/angular/node_modules
+services/web/angular/.angular/
 
 # Env files (never commit secrets!)
 *.env

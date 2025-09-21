@@ -1,4 +1,4 @@
-.PHONY: lint lint-fix fmt test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc
+.PHONY: lint lint-fix fmt test up up-d down logs health api-tasks web-dev web-build web-preview test-backend migrate migrate-test reset-db sqlc web-ng-dev web-ng-build
 
 lint:
 	cd services/tasks && golangci-lint run ./...
@@ -45,6 +45,7 @@ test-backend:
 reset-db:
 	$(MAKE) -C services/tasks reset-db
 
+# React frontend helpers
 web-dev:
 	cd services/web/react && npm install && npm run dev
 
@@ -53,6 +54,12 @@ web-build:
 
 web-preview:
 	cd services/web/react && npm install && npm run preview
+
+# Angular frontend helpers
+web-ng-dev:
+	cd services/web/angular && npm install && npm run start
+
+web-ng-build:
 
 paste:
 	find * -type d -name node_modules -prune -o -type f \

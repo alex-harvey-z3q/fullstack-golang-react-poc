@@ -1,10 +1,12 @@
-# Maintainer Guide — Extending the Tasks API
+# Maintainer Guide — Extending the Tasks API (with React & Angular clients)
 
-This guide explains how to add new endpoints and features while staying consistent with the current architecture and the OpenAPI contract.
+This guide explains how to add new endpoints and features while staying consistent with the current architecture and the OpenAPI contract. It also notes where React and Angular touch the API.
 
 - Backend: `services/tasks` (Go, Gin, Postgres, sqlc)
 - OpenAPI: `services/tasks/api/openapi.yaml`
-- Frontend: `services/web/react` (React + Vite)
+- Frontends:
+  - React: `services/web/react`
+  - Angular: `services/web/angular`
 
 ---
 
@@ -51,8 +53,9 @@ This guide explains how to add new endpoints and features while staying consiste
    - **Handler tests:** add unit tests in `services/tasks/internal/tasks/http_test.go` using fakes that satisfy the new capability interface.
    - **Repo tests:** seed the test DB and exercise new repo methods (see `repo_test.go` for the pattern).
 
-7. **Frontend (if applicable)**
-   - Add a wrapper in `services/web/react/src/api.ts`.
+7. **Frontends (React & Angular)**
+   - **React:** update `services/web/react/src/api.ts` with a new wrapper and use it from components.
+   - **Angular:** update `services/web/angular/src/app/task.service.ts` with a new method and use it from components.
    - Surface errors consistently (HTTP status + body) as done for `createTask`.
 
 8. **Housekeeping**
@@ -191,24 +194,23 @@ r.ServeHTTP(rec, req)
 
 ```bash
 # Run the stack
-docker compose up --build
-
-# Or in detached mode:
-docker compose up --build -d
+make up           # or: make up-d
+make down
+make logs
 
 # Server locally
 cd services/tasks && make dev
 
 # DB tasks
 cd services/tasks
-make migrate         # dev DB
-make migrate-test    # test DB
-make createdb-test   # create test DB once
+make migrate
+make migrate-test
+make reset-db
 
 # Codegen
 cd services/tasks && make sqlc
 
 # Tests
 make lint
-make test
+make test-backend
 ```

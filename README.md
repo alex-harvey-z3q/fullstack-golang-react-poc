@@ -1,20 +1,24 @@
-# Fullstack Monorepo
+# Fullstack Monorepo — Go + Postgres + React + Angular
 
-A learning project demonstrating a fullstack architecture with Go, Postgres, and React.
+A learning project that demonstrates a clean, layered architecture with a Go HTTP service, PostgreSQL, and **two** frontends:
+
+- **React** (Vite) at `services/web/react` (port **5173**)
+- **Angular 18** at `services/web/angular` (port **4200**)
+
+Both frontends call the same REST API implemented by the Go service.
 
 ## Status
 
 - **services/tasks** — Go + Postgres
-  - **REST:** Implemented (`/api/tasks` GET + POST), validated against `openapi.yaml`.
-  - **GraphQL:** Schema & gqlgen config scaffolded, **not wired** into the server yet (no `/graphql` route or resolvers).
+  - REST: `/api/tasks` **GET** + **POST**, validated against OpenAPI.
+  - GraphQL: schema scaffolded (no `/graphql` route yet).
+- **services/web/react** — React + TypeScript
+  - Lists/creates tasks via REST. Vite proxy → `:8081`.
+- **services/web/angular** — Angular 18 (standalone)
+  - Lists/creates tasks via REST. Angular CLI dev server → `:8081` via proxy.
+- **services/users** — placeholder.
 
-- **services/web/react** — React + TypeScript client
-  - Lists tasks from the REST API; Vite dev server with `/api` proxy → `:8081`.
-
-- **services/users** — (planned)
-  - Placeholder; not implemented.
-
-## Architecture and flow
+## High-level Architecture
 
 ```
 Client (browser/curl)
@@ -60,18 +64,21 @@ Client
   - Receives JSON array of tasks
 ```
 
-## Quick Start
-See [QUICK_START.md](QUICK_START.md) for step-by-step setup and workflow.
+## Where things live
 
-## Maintainers
-See [MAINTAINER_GUIDE.md](MAINTAINER_GUIDE.md) for details on extending the API, running migrations, and contributing changes.
+- Backend service: `services/tasks`
+- OpenAPI: `services/tasks/api/openapi.yaml`
+- SQL + sqlc: `services/tasks/internal/db`
+- React app: `services/web/react`
+- Angular app: `services/web/angular`
 
-## API Documentation
+## Getting Started
 
-The REST API contract is defined in:
-services/tasks/api/openapi.yaml
+See **QUICK_START.md** for step-by-step instructions.
 
-This can be used with tools like Swagger UI or Postman to generate clients or validate requests.
+## Extending the API
+
+See **MAINTAINER_GUIDE.md** for a contract-first workflow (OpenAPI → sqlc → repo → service → HTTP) and testing pattern (spec validity + runtime OAS conformance + unit tests).
 
 ## License
 
