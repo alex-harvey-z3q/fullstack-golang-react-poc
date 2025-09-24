@@ -25,10 +25,10 @@ logs:
 	docker compose logs -f
 
 health:
-	@curl -sS http://localhost:8081/healthz || true
+	curl -sS http://localhost:8081/healthz || true
 
 api-tasks:
-	@curl -sS http://localhost:8081/api/tasks || true
+	curl -sS http://localhost:8081/api/tasks || true
 
 migrate:
 	$(MAKE) -C services/tasks migrate
@@ -86,5 +86,4 @@ paste-react:
 paste-angular:
 	$(call PASTE,services/web/angular)
 
-# Run all three in order
 paste: paste-backend paste-react paste-angular
